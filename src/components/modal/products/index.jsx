@@ -209,7 +209,6 @@ const ProductForm = ({ open, handleClose, item }) => {
                           touched.category_id && Boolean(errors.category_id)
                         }
                       >
-                        <MenuItem value="">{/* <em>None</em> */}</MenuItem>
                         {products.map((item) => (
                           <MenuItem
                             key={item.category_id}
@@ -236,7 +235,6 @@ const ProductForm = ({ open, handleClose, item }) => {
                         onChange={handleChange}
                         error={touched.made_in && Boolean(errors.made_in)}
                       >
-                        <MenuItem value="">{/* <em>None</em> */}</MenuItem>
                         <MenuItem value="Uzbekistan">Uzbekistan</MenuItem>
                         <MenuItem value="Turkey">Turkey</MenuItem>
                         <MenuItem value="China">China</MenuItem>

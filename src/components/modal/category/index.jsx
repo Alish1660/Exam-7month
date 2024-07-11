@@ -8,7 +8,6 @@ import {
   TextField,
 } from "@mui/material";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-// import { serviceValidationSchema } from "../../../utils/validation";
 import { category } from "../../../service";
 const Fade = ({ children, in: open }) => {
   const style = {
@@ -73,11 +72,7 @@ const Index = ({ open, handleClose, item }) => {
           <Typography variant="h5" sx={{ my: 2, textAlign: "center" }}>
             Create Category
           </Typography>
-          <Formik
-            initialValues={initialValues}
-            onSubmit={handleSubmit}
-            // validationSchema={serviceValidationSchema}
-          >
+          <Formik initialValues={initialValues} onSubmit={handleSubmit}>
             {({ isSubmitting }) => (
               <Form>
                 <Field

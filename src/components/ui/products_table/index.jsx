@@ -36,7 +36,7 @@ const CustomizedTables = ({ data }) => {
     try {
       const response = await productsApi.delete(id);
       if (response.status === 200 || response.status === 201) {
-        // window.location.reload();
+        window.location.reload();
       }
     } catch (error) {
       console.log(error);
@@ -82,6 +82,7 @@ const CustomizedTables = ({ data }) => {
                   >
                     <VisibilityIcon />
                   </IconButton>
+                  <button> </button>
                 </StyledTableCell>
               </StyledTableRow>
             ))}
