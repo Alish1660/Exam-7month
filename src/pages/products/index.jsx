@@ -2,9 +2,27 @@ import { Search } from "@mui/icons-material";
 import { Button, TextField } from "@mui/material";
 import { useState } from "react";
 import { ProductsModal } from "@modal";
+import { useEffect } from "react";
+import productsApi from "../../service/products";
+import { ProductsTable } from "@ui";
 
 function Index() {
   const [open, setOpen] = useState(false);
+  const [data, setData] = useState([]);
+  const getData = async () => {
+    try {
+      const response = await productsApi.get();
+      if (response.status === 200 && response?.data?.products) {
+        setData(response?.data?.products);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
 
   return (
     <>
@@ -32,6 +50,7 @@ function Index() {
           Add Products
         </Button>
       </div>
+      <ProductsTable data={data} />
     </>
   );
 }

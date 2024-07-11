@@ -1,3 +1,4 @@
 import auth from "./auth";
 import category from "./category";
-export { auth, category };
+import productsApi from "./products";
+export { auth, category, productsApi };

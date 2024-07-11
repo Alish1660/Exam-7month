@@ -1,257 +1,361 @@
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
-  Backdrop,
   Box,
   Typography,
   Button,
   TextField,
-  Radio,
-  RadioGroup,
+  FormControl,
   FormControlLabel,
+  RadioGroup,
+  Radio,
+  Select,
+  MenuItem,
+  Grid,
+  InputLabel,
 } from "@mui/material";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Form, Formik } from "formik";
 import * as Yup from "yup";
-import products from "../../../service/products";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { category } from "@service";
+import productsApi from "../../../service/products";
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 600,
+  bgcolor: "background.paper",
+  border: "1px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
 
 const validationSchema = Yup.object().shape({
-  age_max: Yup.number().required("Age Max is required"),
-  age_min: Yup.number().required("Age Min is required"),
-  category_id: Yup.string().required("Category ID is required"),
+  age_max: Yup.number()
+    .required("Age Maximum is required")
+    .min(0, "Age Maximum must be a positive number"),
+  age_min: Yup.number()
+    .required("Age Minimum is required")
+    .min(0, "Age Minimum must be a positive number"),
+  category_id: Yup.string().required("Category is required"),
   color: Yup.array()
     .of(Yup.string().required("Color is required"))
-    .min(1, "Color is required"),
-  cost: Yup.number().required("Cost is required"),
-  count: Yup.number().required("Count is required"),
+    .min(1, "At least one color is required"),
+  cost: Yup.number()
+    .required("Cost is required")
+    .min(0, "Cost must be a positive number"),
+  count: Yup.number()
+    .required("Count is required")
+    .min(0, "Count must be a positive number"),
   description: Yup.string().required("Description is required"),
-  discount: Yup.number().required("Discount is required"),
+  discount: Yup.number()
+    .required("Discount is required")
+    .min(0, "Discount must be a positive number"),
   for_gender: Yup.string().required("Gender is required"),
-  made_in: Yup.string().required("Made in is required"),
+  made_in: Yup.string().required("Made In is required"),
   product_name: Yup.string().required("Product Name is required"),
   size: Yup.array()
     .of(Yup.string().required("Size is required"))
-    .min(1, "Size is required"),
+    .min(1, "At least one size is required"),
 });
 
-const initialValues = {
-  age_max: "",
-  age_min: "",
-  category_id: "",
-  color: [],
-  cost: "",
-  count: "",
-  description: "",
-  discount: "",
-  for_gender: "",
-  made_in: "",
-  product_name: "",
-  size: [],
-};
+const ProductForm = ({ open, handleClose, item }) => {
+  const [products, setProducts] = useState([]);
+  const [params, setParams] = useState({
+    limit: 15,
+    page: 1,
+  });
 
-const Fade = ({ children, in: open }) => {
-  const style = {
-    opacity: open ? 1 : 0,
-    transition: "opacity 0.5s",
-  };
-
-  return <div style={style}>{open ? children : null}</div>;
-};
-
-const AddProductModal = ({ open, handleClose }) => {
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const getDataCategory = async () => {
     try {
-      const response = await products.create(values);
-      if (response.status === 201) {
-        window.location.reload(); // Refresh page on successful submission
-      } else {
-        // Handle other status codes or errors
-        console.error("Failed to create product:", response);
+      const response = await category.get(params);
+      if (response.status === 200 && response?.data?.categories) {
+        setProducts(response?.data?.categories);
       }
     } catch (error) {
-      console.error("Error creating product:", error);
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getDataCategory();
+  }, [params]);
+
+  const initialValues = {
+    age_max: item?.age_max ?? "",
+    age_min: item?.age_min ?? "",
+    category_id: item?.category_id ?? "",
+    color: item?.color ?? [],
+    cost: item?.cost ?? "",
+    count: item?.count ?? "",
+    description: item?.description ?? "",
+    discount: item?.discount ?? "",
+    for_gender: item?.for_gender ?? "",
+    made_in: item?.made_in ?? "",
+    product_name: item?.product_name ?? "",
+    size: item?.size ?? [],
+  };
+
+  const handleSubmit = async (values, { setSubmitting }) => {
+    try {
+      const response = await productsApi.create(values);
+      if (response.status === 201) {
+        toast.success("Product added successfully!");
+        window.location.reload();
+      } else {
+        toast.error("Failed to add product!");
+      }
+    } catch (error) {
+      console.error("Error while adding product:", error);
+      toast.error("Failed to add product!");
     } finally {
-      setSubmitting(false); // Always set submitting to false after API call
+      setSubmitting(false);
     }
   };
 
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      closeAfterTransition
-      BackdropComponent={Backdrop}
-      BackdropProps={{
-        timeout: 500,
-      }}
-    >
-      <Fade in={open}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 4,
-            width: "80%",
-            maxWidth: 600,
-            borderRadius: 2,
-            textAlign: "center",
-          }}
-        >
-          <Typography variant="h6" sx={{ my: 2 }}>
-            Add Product
+    <>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
+        <Box sx={style}>
+          <Typography
+            id="modal-title"
+            className="text-center pb-3"
+            variant="h6"
+            component="h2"
+          >
+            {item ? "Edit Product" : "Add Product"}
           </Typography>
           <Formik
             initialValues={initialValues}
-            onSubmit={handleSubmit}
             validationSchema={validationSchema}
+            onSubmit={handleSubmit}
           >
-            {({ isSubmitting }) => (
-              <Form>
-                <Box
-                  sx={{
-                    display: "grid",
-                    gap: "10px",
-                    gridTemplateColumns: "1fr 1fr",
-                    textAlign: "left",
-                  }}
-                >
-                  <Field
-                    name="age_max"
-                    type="number"
-                    as={TextField}
-                    label="Age Max"
-                    fullWidth
-                    variant="outlined"
-                    helperText={<ErrorMessage name="age_max" />}
-                  />
-                  <Field
-                    name="count"
-                    type="number"
-                    as={TextField}
-                    label="Count"
-                    fullWidth
-                    variant="outlined"
-                    helperText={<ErrorMessage name="count" />}
-                  />
-                  <Field
-                    name="age_min"
-                    type="number"
-                    as={TextField}
-                    label="Age Min"
-                    fullWidth
-                    variant="outlined"
-                    helperText={<ErrorMessage name="age_min" />}
-                  />
-                  <Field
-                    name="discount"
-                    type="number"
-                    as={TextField}
-                    label="Discount"
-                    fullWidth
-                    variant="outlined"
-                    helperText={<ErrorMessage name="discount" />}
-                  />
-                  <Field
-                    name="category_id"
-                    type="text"
-                    as={TextField}
-                    label="Category ID"
-                    fullWidth
-                    variant="outlined"
-                    helperText={<ErrorMessage name="category_id" />}
-                  />
-                  <Field
-                    name="made_in"
-                    type="text"
-                    as={TextField}
-                    label="Made In"
-                    fullWidth
-                    variant="outlined"
-                    helperText={<ErrorMessage name="made_in" />}
-                  />
-                  <Field
-                    name="color"
-                    type="text"
-                    as={TextField}
-                    label="Color"
-                    fullWidth
-                    variant="outlined"
-                    helperText={<ErrorMessage name="color" />}
-                  />
-                  <Field name="for_gender" as={RadioGroup} row>
-                    <FormControlLabel
-                      value="male"
-                      control={<Radio />}
-                      label="Male"
+            {({
+              values,
+              handleChange,
+              handleSubmit,
+              setFieldValue,
+              errors,
+              touched,
+              isSubmitting,
+            }) => (
+              <Form onSubmit={handleSubmit}>
+                <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      label="Age Maximum"
+                      name="age_max"
+                      onChange={handleChange}
+                      value={values.age_max}
+                      type="number"
+                      error={touched.age_max && Boolean(errors.age_max)}
+                      helperText={touched.age_max && errors.age_max}
                     />
-                    <FormControlLabel
-                      value="female"
-                      control={<Radio />}
-                      label="Female"
+                  </Grid>
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      label="Count"
+                      name="count"
+                      onChange={handleChange}
+                      value={values.count}
+                      type="number"
+                      error={touched.count && Boolean(errors.count)}
+                      helperText={touched.count && errors.count}
                     />
-                    <ErrorMessage name="for_gender" component="div" />
-                  </Field>
-                  <Field
-                    name="cost"
-                    type="number"
-                    as={TextField}
-                    label="Cost"
-                    fullWidth
-                    variant="outlined"
-                    helperText={<ErrorMessage name="cost" />}
-                  />
-                  <Field
-                    name="size"
-                    type="text"
-                    as={TextField}
-                    label="Size"
-                    fullWidth
-                    variant="outlined"
-                    helperText={<ErrorMessage name="size" />}
-                  />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      label="Age Minimum"
+                      name="age_min"
+                      onChange={handleChange}
+                      value={values.age_min}
+                      type="number"
+                      error={touched.age_min && Boolean(errors.age_min)}
+                      helperText={touched.age_min && errors.age_min}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      label="Discount"
+                      name="discount"
+                      onChange={handleChange}
+                      value={values.discount}
+                      type="number"
+                      error={touched.discount && Boolean(errors.discount)}
+                      helperText={touched.discount && errors.discount}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <FormControl fullWidth required>
+                      <InputLabel id="category-label">Category</InputLabel>
+                      <Select
+                        labelId="category-label"
+                        name="category_id"
+                        value={values.category_id}
+                        onChange={handleChange}
+                        error={
+                          touched.category_id && Boolean(errors.category_id)
+                        }
+                      >
+                        <MenuItem value="">{/* <em>None</em> */}</MenuItem>
+                        {products.map((item) => (
+                          <MenuItem
+                            key={item.category_id}
+                            value={item.category_id}
+                          >
+                            {item.category_name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      {touched.category_id && errors.category_id && (
+                        <Typography color="error" variant="body2">
+                          {errors.category_id}
+                        </Typography>
+                      )}
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <FormControl fullWidth required>
+                      <InputLabel id="made-in-label">Made In</InputLabel>
+                      <Select
+                        labelId="made-in-label"
+                        name="made_in"
+                        value={values.made_in}
+                        onChange={handleChange}
+                        error={touched.made_in && Boolean(errors.made_in)}
+                      >
+                        <MenuItem value="">{/* <em>None</em> */}</MenuItem>
+                        <MenuItem value="Uzbekistan">Uzbekistan</MenuItem>
+                        <MenuItem value="Turkey">Turkey</MenuItem>
+                        <MenuItem value="China">China</MenuItem>
+                      </Select>
+                      {touched.made_in && errors.made_in && (
+                        <Typography color="error" variant="body2">
+                          {errors.made_in}
+                        </Typography>
+                      )}
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      label="Color"
+                      name="color"
+                      onChange={(e) => setFieldValue("color", [e.target.value])}
+                      value={values.color}
+                      error={touched.color && Boolean(errors.color)}
+                      helperText={touched.color && errors.color}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      label="Size"
+                      name="size"
+                      onChange={(e) => setFieldValue("size", [e.target.value])}
+                      value={values.size}
+                      error={touched.size && Boolean(errors.size)}
+                      helperText={touched.size && errors.size}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <FormControl component="fieldset" required>
+                      <RadioGroup
+                        row
+                        name="for_gender"
+                        value={values.for_gender}
+                        onChange={handleChange}
+                      >
+                        <FormControlLabel
+                          value="male"
+                          control={<Radio />}
+                          label="Male"
+                        />
+                        <FormControlLabel
+                          value="female"
+                          control={<Radio />}
+                          label="Female"
+                        />
+                      </RadioGroup>
+                      {touched.for_gender && errors.for_gender && (
+                        <Typography color="error" variant="body2">
+                          {errors.for_gender}
+                        </Typography>
+                      )}
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      label="Cost"
+                      name="cost"
+                      onChange={handleChange}
+                      value={values.cost}
+                      type="number"
+                      error={touched.cost && Boolean(errors.cost)}
+                      helperText={touched.cost && errors.cost}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Product Name"
+                      name="product_name"
+                      onChange={handleChange}
+                      value={values.product_name}
+                      error={
+                        touched.product_name && Boolean(errors.product_name)
+                      }
+                      helperText={touched.product_name && errors.product_name}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Description"
+                      name="description"
+                      onChange={handleChange}
+                      value={values.description}
+                      multiline
+                      rows={2}
+                      error={touched.description && Boolean(errors.description)}
+                      helperText={touched.description && errors.description}
+                    />
+                  </Grid>
+                </Grid>
+                <Box sx={{ mt: 2, textAlign: "right" }}>
+                  <Button onClick={handleClose} sx={{ mr: 2 }}>
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    disabled={isSubmitting}
+                  >
+                    {item ? "Update" : "Submit"}
+                  </Button>
                 </Box>
-                <Field
-                  name="product_name"
-                  type="text"
-                  as={TextField}
-                  label="Product Name"
-                  fullWidth
-                  variant="outlined"
-                  sx={{ mt: 2 }}
-                  helperText={<ErrorMessage name="product_name" />}
-                />
-                <Field
-                  name="description"
-                  type="text"
-                  as={TextField}
-                  label="Description"
-                  fullWidth
-                  multiline
-                  rows={3}
-                  variant="outlined"
-                  sx={{ mt: 1 }}
-                  helperText={<ErrorMessage name="description" />}
-                />
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  disabled={isSubmitting}
-                  sx={{ mt: 2 }}
-                >
-                  {isSubmitting ? "Saving..." : "Save"}
-                </Button>
               </Form>
             )}
           </Formik>
         </Box>
-      </Fade>
-    </Modal>
+      </Modal>
+      <ToastContainer />
+    </>
   );
 };
 
-export default AddProductModal;
+export default ProductForm;
