@@ -13,6 +13,8 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useNavigate } from "react-router-dom";
 import { productsApi } from "../../../service";
 import { IconButton, Button } from "@mui/material";
+import { useRef, useState } from "react";
+import axios from "axios";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -34,6 +36,8 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const CustomizedTables = ({ data }) => {
+  const [id, setId] = useState("");
+  const fileinputRef = useRef(null);
   const navigate = useNavigate();
   const deleteItem = async (id) => {
     try {
@@ -45,10 +49,35 @@ const CustomizedTables = ({ data }) => {
       console.log(error);
     }
   };
-
-  const handleUpload = (id) => {
-    console.log(`Upload action clicked for product with ID: ${id}`);
+  const handleUpload = async (product_id) => {
+    setId(product_id);
+    fileinputRef.current.click();
   };
+  const handleUploadChange = async (e) => {
+    const file = e.target.files[0];
+    // console.log(file);
+    const formData = new FormData();
+
+    formData.append("file", file);
+    formData.append("id", id);
+    console.log(formData);
+    const access_token = localStorage.getItem("access_token");
+    try {
+      await axios.post(
+        `https://store.go-clothes.uz/v1/media/upload-photo?id=${id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleNavigate = (id) => {
     navigate(`/products/${id}`);
   };
@@ -86,10 +115,14 @@ const CustomizedTables = ({ data }) => {
                   <IconButton onClick={() => handleNavigate(item.product_id)}>
                     <VisibilityIcon />
                   </IconButton>
-                  <IconButton
-                    onClick={() => handleUpload(item.product_id)}
-                    aria-label="upload image"
-                  >
+                  <IconButton onClick={() => handleUpload(item.product_id)}>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleUploadChange}
+                      ref={fileinputRef}
+                    />
                     <CloudUploadIcon />
                   </IconButton>
                 </StyledTableCell>

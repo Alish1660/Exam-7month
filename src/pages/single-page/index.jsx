@@ -4,15 +4,19 @@ import { get_product } from "../../service/products";
 import { Carousel } from "react-responsive-carousel";
 import "./single.css";
 import "../styles/carousel.css";
+import http from "../../service/config";
 
 const SinglePage = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
-
+  const [imageurl, setImageurl] = useState("");
+  console.log(product);
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await get_product(id);
+        const image = await http(`/media/${id}`);
+        console.log(image);
         setProduct(response.data);
       } catch (error) {
         console.log(error);
@@ -29,12 +33,12 @@ const SinglePage = () => {
   return (
     <div className="single-page-container">
       <div className="product-image">
-        {product.images && product.images.length > 0 ? (
+        {product.image_url && product.image_url.length > 0 ? (
           <Carousel showArrows={true} showThumbs={false}>
-            {product.images.map((image, index) => (
+            {product.image_url.map((image, index) => (
               <div key={index}>
                 <img
-                  src={image.url}
+                  src={image}
                   alt={`Product ${index + 1}`}
                   className="image"
                 />
