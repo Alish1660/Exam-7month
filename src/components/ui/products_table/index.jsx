@@ -9,9 +9,11 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { useNavigate } from "react-router-dom";
 import { productsApi } from "../../../service";
-import { IconButton } from "@mui/material";
-import { Link } from "react-router-dom";
+import { IconButton, Button } from "@mui/material";
+
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: "rgba(35,137,218,1)",
@@ -32,6 +34,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const CustomizedTables = ({ data }) => {
+  const navigate = useNavigate();
   const deleteItem = async (id) => {
     try {
       const response = await productsApi.delete(id);
@@ -42,6 +45,14 @@ const CustomizedTables = ({ data }) => {
       console.log(error);
     }
   };
+
+  const handleUpload = (id) => {
+    console.log(`Upload action clicked for product with ID: ${id}`);
+  };
+  const handleNavigate = (id) => {
+    navigate(`/products/${id}`);
+  };
+
   return (
     <>
       <TableContainer component={Paper}>
@@ -54,7 +65,6 @@ const CustomizedTables = ({ data }) => {
               <StyledTableCell align="center">Size</StyledTableCell>
               <StyledTableCell align="center">Count</StyledTableCell>
               <StyledTableCell align="center">Cost</StyledTableCell>
-
               <StyledTableCell align="center">Action</StyledTableCell>
             </TableRow>
           </TableHead>
@@ -63,26 +73,25 @@ const CustomizedTables = ({ data }) => {
               <StyledTableRow key={index}>
                 <StyledTableCell align="center">{index + 1}</StyledTableCell>
                 <StyledTableCell align="center">
-                  {" "}
                   {item.product_name}
                 </StyledTableCell>
-                <StyledTableCell align="center"> {item.color}</StyledTableCell>
+                <StyledTableCell align="center">{item.color}</StyledTableCell>
                 <StyledTableCell align="center">{item.size}</StyledTableCell>
                 <StyledTableCell align="center">{item.count}</StyledTableCell>
                 <StyledTableCell align="center">{item.cost}</StyledTableCell>
-
                 <StyledTableCell align="center">
-                  <button onClick={() => deleteItem(item.product_id)}>
+                  <Button onClick={() => deleteItem(item.product_id)}>
                     <DeleteIcon />
-                  </button>
-                  <IconButton
-                    component={Link}
-                    to={"/SinglePage"}
-                    aria-label="view product"
-                  >
+                  </Button>
+                  <IconButton onClick={() => handleNavigate(item.product_id)}>
                     <VisibilityIcon />
                   </IconButton>
-                  <button> </button>
+                  <IconButton
+                    onClick={() => handleUpload(item.product_id)}
+                    aria-label="upload image"
+                  >
+                    <CloudUploadIcon />
+                  </IconButton>
                 </StyledTableCell>
               </StyledTableRow>
             ))}

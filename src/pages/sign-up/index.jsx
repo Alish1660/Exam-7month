@@ -6,7 +6,6 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Notification } from "../../utils/index";
 import { auth } from "../../service/";
 import { useMask } from "@react-input/mask";
-import { signUpValidationSchema } from "../../utils/validation";
 
 const Index = () => {
   const initialValues = {

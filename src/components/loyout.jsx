@@ -47,9 +47,12 @@ function ResponsiveDrawer(props) {
     <div>
       <Toolbar>
         {" "}
-        <img src={logo} alt="logo" className="w-[144px] h-[50px]" />
+        <img
+          src={logo}
+          alt="logo"
+          className="w-[150px] h-[100px] text-center"
+        />
       </Toolbar>
-      <Divider />
       <List>
         {routes.map((item, index) => (
           <NavLink
@@ -76,7 +79,6 @@ function ResponsiveDrawer(props) {
           </NavLink>
         ))}
       </List>
-      <Divider />
     </div>
   );
 
