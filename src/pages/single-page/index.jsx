@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { get_product } from "../../service/products";
+import { Carousel } from "react-responsive-carousel";
 import "./single.css";
+import "../styles/carousel.css";
 
 const SinglePage = () => {
   const { id } = useParams();
@@ -26,11 +28,23 @@ const SinglePage = () => {
 
   return (
     <div className="single-page-container">
-      {product.image_url && (
-        <div className="product-image">
-          <img src={product.image_url} alt="Product" className="image" />
-        </div>
-      )}
+      <div className="product-image">
+        {product.images && product.images.length > 0 ? (
+          <Carousel showArrows={true} showThumbs={false}>
+            {product.images.map((image, index) => (
+              <div key={index}>
+                <img
+                  src={image.url}
+                  alt={`Product ${index + 1}`}
+                  className="image"
+                />
+              </div>
+            ))}
+          </Carousel>
+        ) : (
+          <div className="image-placeholder">No Images Available</div>
+        )}
+      </div>
       <div className="product-details">
         <h2 className="product-name">{product.product_name}</h2>
         <div className="product-info">

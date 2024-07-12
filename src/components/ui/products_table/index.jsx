@@ -13,6 +13,8 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useNavigate } from "react-router-dom";
 import { productsApi } from "../../../service";
 import { IconButton, Button } from "@mui/material";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -35,11 +37,26 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const CustomizedTables = ({ data }) => {
   const navigate = useNavigate();
+
+  // Function to display toast notification
+  const showToast = (message) => {
+    toast.success(message, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+    localStorage.setItem("toastMessage", message);
+  };
+
   const deleteItem = async (id) => {
     try {
       const response = await productsApi.delete(id);
-      if (response.status === 200 || response.status === 201) {
-        window.location.reload();
+      if (response.status === 200 || response.status === 204) {
+        showToast("Product deleted successfully");
+        window.location.reload(); // Reload after delete
       }
     } catch (error) {
       console.log(error);
@@ -49,12 +66,24 @@ const CustomizedTables = ({ data }) => {
   const handleUpload = (id) => {
     console.log(`Upload action clicked for product with ID: ${id}`);
   };
+
   const handleNavigate = (id) => {
     navigate(`/products/${id}`);
   };
 
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 700 }} aria-label="customized table">
           <TableHead>

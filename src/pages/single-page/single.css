@@ -1,6 +1,10 @@
+/* src/styles/carousel.css */
+
 .single-page-container {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  justify-content: center;
   padding: 20px;
   background-color: #f0f0f0;
   border-radius: 8px;
@@ -9,7 +13,7 @@
 
 .product-details {
   flex: 1;
-  padding-right: 100px;
+  padding-left: 150px;
 }
 
 .product-name {
@@ -33,7 +37,7 @@
   max-width: 400px;
   border-radius: 8px;
   overflow: hidden;
-  margin-left: 20px; /* Add margin for spacing between image and details */
+  margin-left: 90px;
 }
 
 .image {

@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as yup from "yup";
 import {
   Modal,
   Backdrop,
@@ -8,10 +9,26 @@ import {
   TextField,
 } from "@mui/material";
 import { RadioGroup, FormControlLabel, Radio } from "@mui/material";
-
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import workers from "../../../service/workers";
-// import { serviceValidationSchema } from "../../../utils/validation";
+
+const validationSchema = yup.object().shape({
+  age: yup
+    .number()
+    .required("Age is required")
+    .positive("Age must be a positive number")
+    .integer("Age must be an integer"),
+  email: yup.string().email("Invalid email").required("Email is required"),
+  first_name: yup.string().required("First Name is required"),
+  gender: yup.string().required("Gender is required"),
+  last_name: yup.string().required("Last Name is required"),
+  password: yup.string().required("Password is required"),
+  phone_number: yup
+    .string()
+    .matches(/^\d+$/, "Phone number must contain only digits")
+    .required("Phone Number is required"),
+});
+
 const Fade = ({ children, in: open }) => {
   const style = {
     opacity: open ? 1 : 0,
@@ -54,6 +71,7 @@ const Index = ({ open, handleClose, item }) => {
       }
     }
   };
+
   return (
     <Modal
       open={open}
@@ -84,7 +102,7 @@ const Index = ({ open, handleClose, item }) => {
           <Formik
             initialValues={initialValues}
             onSubmit={handleSubmit}
-            // validationSchema={serviceValidationSchema}
+            validationSchema={validationSchema}
           >
             {({ isSubmitting }) => (
               <Form>
@@ -98,9 +116,9 @@ const Index = ({ open, handleClose, item }) => {
                   variant="outlined"
                   helperText={
                     <ErrorMessage
-                      name="age"
-                      component="p"
                       className="text-[red] text-[15px]"
+                      component="span"
+                      name="age"
                     />
                   }
                 />
@@ -115,9 +133,9 @@ const Index = ({ open, handleClose, item }) => {
                   variant="outlined"
                   helperText={
                     <ErrorMessage
-                      name="email"
-                      component="p"
                       className="text-[red] text-[15px]"
+                      component="span"
+                      name="email"
                     />
                   }
                 />
@@ -131,9 +149,9 @@ const Index = ({ open, handleClose, item }) => {
                   variant="outlined"
                   helperText={
                     <ErrorMessage
-                      name="first_name"
-                      component="p"
                       className="text-[red] text-[15px]"
+                      component="span"
+                      name="first_name"
                     />
                   }
                 />
@@ -148,6 +166,11 @@ const Index = ({ open, handleClose, item }) => {
                     control={<Radio />}
                     label="Female"
                   />
+                  <ErrorMessage
+                    className="text-[red] text-[15px]"
+                    component="span"
+                    name="gender"
+                  />
                 </Field>
 
                 <Field
@@ -160,9 +183,9 @@ const Index = ({ open, handleClose, item }) => {
                   variant="outlined"
                   helperText={
                     <ErrorMessage
-                      name="last_name"
-                      component="p"
                       className="text-[red] text-[15px]"
+                      component="span"
+                      name="last_name"
                     />
                   }
                 />
@@ -176,9 +199,9 @@ const Index = ({ open, handleClose, item }) => {
                   variant="outlined"
                   helperText={
                     <ErrorMessage
-                      name="password"
-                      component="p"
                       className="text-[red] text-[15px]"
+                      component="span"
+                      name="password"
                     />
                   }
                 />
@@ -192,9 +215,9 @@ const Index = ({ open, handleClose, item }) => {
                   variant="outlined"
                   helperText={
                     <ErrorMessage
-                      name="phone_number"
-                      component="p"
                       className="text-[red] text-[15px]"
+                      component="span"
+                      name="phone_number"
                     />
                   }
                 />

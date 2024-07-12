@@ -8,7 +8,13 @@ import {
   TextField,
 } from "@mui/material";
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup"; // Import Yup for schema validation
 import { category } from "../../../service";
+
+const validationSchema = Yup.object().shape({
+  category_name: Yup.string().required("Category Name is required"),
+});
+
 const Fade = ({ children, in: open }) => {
   const style = {
     opacity: open ? 1 : 0,
@@ -20,31 +26,32 @@ const Fade = ({ children, in: open }) => {
 
 const Index = ({ open, handleClose, item }) => {
   const initialValues = {
-    category_name: item?.category_name ? item.category_name : "",
-    category_id: item?.category_id ? item.category_id : "",
+    category_name: item?.category_name || "",
+    category_id: item?.category_id || "",
   };
-  const handleSubmit = async (values) => {
-    if (item) {
-      const payload = { id: item.id, ...values };
-      try {
-        const response = await category.update(payload);
-        if (response.status === 200) {
-          window.location.reload();
-        }
-      } catch (error) {
-        console.log(error);
+
+  const handleSubmit = async (values, { setSubmitting }) => {
+    try {
+      let response;
+      if (item) {
+        const payload = { id: item.id, ...values };
+        response = await category.update(payload);
+      } else {
+        response = await category.create(values);
       }
-    } else {
-      try {
-        const response = await category.create(values);
-        if (response.status === 201) {
-          window.location.reload();
-        }
-      } catch (error) {
-        console.log(error);
+
+      if (response.status === 200 || response.status === 201) {
+        window.location.reload();
+      } else {
+        console.log("Unexpected status:", response.status);
       }
+    } catch (error) {
+      console.error("API Error:", error);
+    } finally {
+      setSubmitting(false);
     }
   };
+
   return (
     <Modal
       open={open}
@@ -70,9 +77,13 @@ const Index = ({ open, handleClose, item }) => {
           }}
         >
           <Typography variant="h5" sx={{ my: 2, textAlign: "center" }}>
-            Create Category
+            {item ? "Edit Category" : "Create Category"}
           </Typography>
-          <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema} // Assign the validation schema
+            onSubmit={handleSubmit}
+          >
             {({ isSubmitting }) => (
               <Form>
                 <Field
@@ -85,9 +96,9 @@ const Index = ({ open, handleClose, item }) => {
                   variant="outlined"
                   helperText={
                     <ErrorMessage
-                      name="category_name"
-                      component="p"
                       className="text-[red] text-[15px]"
+                      component="span"
+                      name="category_name"
                     />
                   }
                 />
@@ -98,7 +109,7 @@ const Index = ({ open, handleClose, item }) => {
                   color="primary"
                   fullWidth
                   disabled={isSubmitting}
-                  sx={{ marginBottom: "8px" }}
+                  sx={{ marginTop: "8px" }}
                 >
                   {isSubmitting ? "Saving..." : "Save"}
                 </Button>
