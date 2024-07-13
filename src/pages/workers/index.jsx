@@ -18,7 +18,7 @@ function Index() {
       const response = await workers.get(params);
       if (response.status === 200 && response?.data?.user) {
         setData(response?.data?.user);
-        const total = response?.data?.total_count || 0;
+        const total = response?.data?.totcal_count || 0;
         const calculatedTotalPages = Math.ceil(total / params.limit);
         setTotalPages(calculatedTotalPages);
       }
