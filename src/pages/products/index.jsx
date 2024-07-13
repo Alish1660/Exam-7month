@@ -1,5 +1,5 @@
 import { Search } from "@mui/icons-material";
-import { Button, TextField } from "@mui/material";
+import { Button, Pagination, TextField } from "@mui/material";
 import { useState } from "react";
 import { ProductsModal } from "@modal";
 import { useEffect } from "react";
@@ -9,11 +9,20 @@ import { ProductsTable } from "@ui";
 function Index() {
   const [open, setOpen] = useState(false);
   const [data, setData] = useState([]);
+  const [params, setParams] = useState({
+    limit: 6,
+    page: 1,
+  });
+  const [totalPages, setTotalPages] = useState(0);
+
   const getData = async () => {
     try {
-      const response = await productsApi.get();
+      const response = await productsApi.get(params);
       if (response.status === 200 && response?.data?.products) {
         setData(response?.data?.products);
+        const total = response.data.total_count || 0;
+        const calculatedTotalPages = Math.ceil(total / params.limit);
+        setTotalPages(calculatedTotalPages);
       }
     } catch (error) {
       console.log(error);
@@ -22,7 +31,13 @@ function Index() {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [params]);
+  const handleChange = (event, value) => {
+    setParams((prevParams) => ({
+      ...prevParams,
+      page: value,
+    }));
+  };
 
   return (
     <>
@@ -51,6 +66,13 @@ function Index() {
         </Button>
       </div>
       <ProductsTable data={data} />
+      <div className="my-2">
+        <Pagination
+          count={totalPages}
+          page={params.page}
+          onChange={handleChange}
+        />
+      </div>
     </>
   );
 }

@@ -1,18 +1,26 @@
-import { Button } from "@mui/material";
+import { Button, Pagination } from "@mui/material";
 import { useState, useEffect } from "react";
 import { WorkersModal } from "@modal";
 import { WorkersTable } from "@ui";
 import workers from "../../service/workers";
+
 function Index() {
   const [open, setOpen] = useState(false);
   const [data, setData] = useState([]);
+  const [params, setParams] = useState({
+    limit: 10,
+    page: 1,
+  });
+  const [totalPages, setTotalPages] = useState(0);
 
   const getData = async () => {
     try {
-      const response = await workers.get();
+      const response = await workers.get(params);
       if (response.status === 200 && response?.data?.user) {
         setData(response?.data?.user);
-        console.log(response);
+        const total = response?.data?.total_count || 0;
+        const calculatedTotalPages = Math.ceil(total / params.limit);
+        setTotalPages(calculatedTotalPages);
       }
     } catch (error) {
       console.log(error);
@@ -21,7 +29,14 @@ function Index() {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [params]);
+
+  const handleChange = (event, value) => {
+    setParams((prevParams) => ({
+      ...prevParams,
+      page: value,
+    }));
+  };
 
   return (
     <>
@@ -33,6 +48,13 @@ function Index() {
           </Button>
         </div>
         <WorkersTable data={data} />
+      </div>
+      <div className="my-2">
+        <Pagination
+          count={totalPages}
+          page={params.page}
+          onChange={handleChange}
+        />
       </div>
     </>
   );
