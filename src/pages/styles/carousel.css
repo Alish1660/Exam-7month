@@ -1,10 +1,54 @@
+.carousel .slide img {
+  width: 400px;
+  height: 300px;
+}
+
 .image-placeholder {
   display: flex;
-  align-items: center;
   justify-content: center;
-  height: 100%;
+  align-items: center;
+  width: 400px;
+  height: 200px;
   background-color: #f0f0f0;
-  border-radius: 8px;
-  font-size: 18px;
-  color: #666;
+  color: #999;
+  font-size: 24px;
+  text-align: center;
+}
+.carousel .control-arrow,
+.carousel.carousel-slider .control-arrow {
+  opacity: 1;
+  filter: alpha(opacity=100);
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  background: none;
+  border: 0;
+  font-size: 48px;
+  cursor: pointer;
+  color: #000;
+  transform: translateY(-50%);
+}
+
+.carousel .control-prev.control-arrow {
+  left: 5px;
+}
+
+.carousel .control-next.control-arrow {
+  right: 5px;
+}
+
+.carousel .control-arrow:before {
+  margin: 0 5px;
+  display: inline-block;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  content: "";
+}
+
+.carousel .control-prev.control-arrow:before {
+  border-right: 8px solid #aaa8a8;
+}
+
+.carousel .control-next.control-arrow:before {
+  border-left: 8px solid #aaa8a8;
 }

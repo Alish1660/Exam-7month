@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { get_product } from "../../service/products";
 import { Carousel } from "react-responsive-carousel";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 import "./single.css";
 import "../styles/carousel.css";
 import http from "../../service/config";
@@ -9,8 +10,7 @@ import http from "../../service/config";
 const SinglePage = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
-  const [imageurl, setImageurl] = useState("");
-  console.log(product);
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -34,7 +34,14 @@ const SinglePage = () => {
     <div className="single-page-container">
       <div className="product-image">
         {product.image_url && product.image_url.length > 0 ? (
-          <Carousel showArrows={true} showThumbs={false}>
+          <Carousel
+            showArrows={true}
+            showThumbs={false}
+            infiniteLoop={true}
+            autoPlay={true}
+            interval={3000}
+            stopOnHover={true}
+          >
             {product.image_url.map((image, index) => (
               <div key={index}>
                 <img

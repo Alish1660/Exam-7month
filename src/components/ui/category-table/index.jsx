@@ -12,6 +12,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import { category } from "../../../service";
 import { useState } from "react";
 import { CategoryModal } from "@modal";
+import { Notification } from "../../../utils";
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: "rgba(35,137,218,1)",
@@ -43,10 +44,18 @@ const CustomizedTables = ({ data }) => {
     try {
       const response = await category.delete(id);
       if (response.status === 200 || response.status === 201) {
+        Notification({
+          title: "Deleted Successfuly",
+          type: "success",
+        });
         window.location.reload();
       }
     } catch (error) {
       console.log(error);
+      Notification({
+        title: "Delete Failed",
+        type: "error",
+      });
     }
   };
   return (

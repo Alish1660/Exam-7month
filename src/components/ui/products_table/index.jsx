@@ -7,14 +7,14 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useNavigate } from "react-router-dom";
 import { productsApi } from "../../../service";
 import { IconButton, Button } from "@mui/material";
 import { useRef, useState } from "react";
 import axios from "axios";
+import { InboxOutlined, DeleteOutlined } from "@mui/icons-material";
+import { Notification } from "../../../utils";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -44,9 +44,17 @@ const CustomizedTables = ({ data }) => {
       const response = await productsApi.delete(id);
       if (response.status === 200 || response.status === 201) {
         window.location.reload();
+        Notification({
+          title: "Deleted Successfuly",
+          type: "success",
+        });
       }
     } catch (error) {
       console.log(error);
+      Notification({
+        title: "Delete Failed",
+        type: "error",
+      });
     }
   };
   const handleUpload = async (product_id) => {
@@ -55,7 +63,6 @@ const CustomizedTables = ({ data }) => {
   };
   const handleUploadChange = async (e) => {
     const file = e.target.files[0];
-    // console.log(file);
     const formData = new FormData();
 
     formData.append("file", file);
@@ -110,7 +117,7 @@ const CustomizedTables = ({ data }) => {
                 <StyledTableCell align="center">{item.cost}</StyledTableCell>
                 <StyledTableCell align="center">
                   <Button onClick={() => deleteItem(item.product_id)}>
-                    <DeleteIcon />
+                    <DeleteOutlined />
                   </Button>
                   <IconButton onClick={() => handleNavigate(item.product_id)}>
                     <VisibilityIcon />
@@ -123,7 +130,7 @@ const CustomizedTables = ({ data }) => {
                       onChange={handleUploadChange}
                       ref={fileinputRef}
                     />
-                    <CloudUploadIcon />
+                    <InboxOutlined />
                   </IconButton>
                 </StyledTableCell>
               </StyledTableRow>
