@@ -39,7 +39,7 @@ const SinglePage = () => {
             showThumbs={false}
             infiniteLoop={true}
             autoPlay={true}
-            interval={3000}
+            interval={2000}
             stopOnHover={true}
           >
             {product.image_url.map((image, index) => (

@@ -37,7 +37,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const CustomizedTables = ({ data }) => {
   const [id, setId] = useState("");
-  const fileinputRef = useRef(null);
+  const fileinputRefs = useRef([]);
   const navigate = useNavigate();
   const deleteItem = async (id) => {
     try {
@@ -57,14 +57,14 @@ const CustomizedTables = ({ data }) => {
       });
     }
   };
-  const handleUpload = async (product_id) => {
-    setId(product_id);
-    fileinputRef.current.click();
+  const handleUpload = async (index) => {
+    // console.log(product_id);
+    // setId(product_id);
+    fileinputRefs.current[index].click();
   };
-  const handleUploadChange = async (e) => {
+  const handleUploadChange = async (e, id) => {
     const file = e.target.files[0];
     const formData = new FormData();
-
     formData.append("file", file);
     formData.append("id", id);
     console.log(formData);
@@ -122,13 +122,13 @@ const CustomizedTables = ({ data }) => {
                   <IconButton onClick={() => handleNavigate(item.product_id)}>
                     <VisibilityIcon />
                   </IconButton>
-                  <IconButton onClick={() => handleUpload(item.product_id)}>
+                  <IconButton onClick={() => handleUpload(index)}>
                     <input
                       type="file"
                       className="hidden"
                       accept="image/*"
-                      onChange={handleUploadChange}
-                      ref={fileinputRef}
+                      onChange={(e) => handleUploadChange(e, item.product_id)}
+                      ref={(el) => (fileinputRefs.current[index] = el)}
                     />
                     <InboxOutlined />
                   </IconButton>
